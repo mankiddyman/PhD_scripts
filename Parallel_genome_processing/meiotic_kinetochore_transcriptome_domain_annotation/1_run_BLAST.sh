@@ -1,0 +1,1 @@
+/home/abhatia/../../netscratch/dep_mercier/grp_marques/Aaryan/meioticore/1_run_BLAST.sh
