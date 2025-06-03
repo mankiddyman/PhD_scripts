@@ -1,0 +1,1 @@
+/home/abhatia/../../netscratch/dep_mercier/grp_marques/Aaryan/tasks/HiC_QC/6181M/run_juicer.sh
