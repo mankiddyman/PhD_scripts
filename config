@@ -1,0 +1,80 @@
+Host gwdg_login
+Hostname login.gwdg.de
+User aaryan.bhatia
+
+Host gwdg_cluster
+Hostname gwdu101
+User aaryan.bhatia
+ProxyJump gwdg_login
+
+Host gwdg_transfer
+Hostname transfer.gwdg.de
+User aaryan.bhatia
+
+
+
+
+Host login-node
+	HostName cucumber.mpipz.mpg.de
+	User abhatia
+	PubkeyAcceptedKeyTypes +ssh-rsa
+	HostKeyAlgorithms +ssh-rsa
+	KexAlgorithms +diffie-hellman-group1-sha1
+Host dell-node-12
+	HostName dell-node-12.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc01-node
+	HostName hpc01.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host gpu-node
+	HostName gpu01.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc02-node
+	HostName hpc02.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc03-node
+	HostName hpc03.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc04-node
+	HostName hpc04.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc05-node
+	HostName hpc05.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc06-node
+	HostName hpc06.mpipz.mpg.de
+	User abhatia
+
+
+	ProxyJump login-node
+Host hpc07-node
+	HostName hpc07.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc08-node
+	HostName hpc08.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc09-node
+	HostName hpc09.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc10-node
+	HostName hpc10
+	User abhatia
+	ProxyJump login-node
+Host hpc11-node
+	HostName hpc11.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
+Host hpc12-node
+	HostName hpc12.mpipz.mpg.de
+	User abhatia
+	ProxyJump login-node
