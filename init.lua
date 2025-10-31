@@ -94,3 +94,12 @@ vim.keymap.set('n', '<C-c>', '"+yy', { desc = 'Copy line to Clipboard' })
 -- Map Ctrl+V to paste
 vim.keymap.set('n', '<C-v>', 'p', { desc = 'Paste' })
 vim.keymap.set('i', '<C-v>', '<C-r>"', { desc = 'Paste' })
+
+
+
+-- insert current date in format like this 12:50|Fr.|Okt.|31|2025 using leader D
+vim.keymap.set('n', '<leader>d', function()
+  local date_str = os.date("%H:%M|%a.|%b.|%d|%Y")
+  vim.api.nvim_put({date_str}, 'c', true, true)
+end, { desc = 'Insert Current Date' })
+
