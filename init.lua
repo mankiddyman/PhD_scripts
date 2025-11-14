@@ -91,6 +91,8 @@ vim.g.clipboard = {
 -- Map Ctrl+C to yank (copy)
 vim.keymap.set('v', '<C-c>', '"+y', { desc = 'Copy to Clipboard' })
 vim.keymap.set('n', '<C-c>', '"+yy', { desc = 'Copy line to Clipboard' })
+-- also for visual line mode
+
 -- Map Ctrl+V to paste
 vim.keymap.set('n', '<C-v>', 'p', { desc = 'Paste' })
 vim.keymap.set('i', '<C-v>', '<C-r>"', { desc = 'Paste' })
