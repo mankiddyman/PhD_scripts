@@ -1,0 +1,17 @@
+(Dionaea,
+  (D.regia,
+    (
+      (D.binata,
+        (D.paradoxa,
+          (D.roseana,D.scorpioides)
+        )
+      ),
+      (D.filiformis,
+        (D.tokaiensis,
+          (D.capensis,D.aliciae)
+        )
+      )
+    )
+  )
+);
+
