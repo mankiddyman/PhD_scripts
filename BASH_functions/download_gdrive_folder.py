@@ -125,9 +125,9 @@ def download_folder_files(folder_url, output_dir="downloads", skip_existing=True
 
 if __name__ == "__main__":
     # Replace with your Google Drive folder URL or ID
-    FOLDER_URL = "https://drive.google.com/drive/folders/1014qkKPpxFi5oHS1GjPOTf8gm8fJN839"
+    FOLDER_URL = ""
     
     # Specify output directory
-    OUTPUT_DIR = "/biodata/dep_mercier/grp_marques/marques/Carnivorous-plants/RNA_seq/D_capensis"
+    OUTPUT_DIR = ""
     
     download_folder_files(FOLDER_URL, OUTPUT_DIR)
