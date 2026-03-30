@@ -19,15 +19,22 @@ local plugins = {
   { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
   { "github/copilot.vim", config = function() end },
   { "catgoose/nvim-colorizer.lua", event = "BufReadPre", opts = {} },
-
-  -- vim-slime
-	 {'jpalardy/vim-slime',
-          config=function()
-		  vim.cmd([[let g:slime_target="tmux"]])
-			vim.cmd([[let g:slime_paste_file="$HOME/.slime_paste"]])
-			vim.cmd([[let g:slime_target_pane="1"]])
-	  end,
-	  },
+  {
+    'vidocqh/data-viewer.nvim',
+    opts = {},
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "kkharji/sqlite.lua", -- Optional, sqlite support
+    },
+  },
+  {
+    'jpalardy/vim-slime',
+    config = function()
+      vim.cmd([[let g:slime_target="tmux"]])
+      vim.cmd([[let g:slime_paste_file="$HOME/.slime_paste"]])
+      vim.cmd([[let g:slime_target_pane="1"]])
+    end,
+  },
 }
 
 require("lazy").setup(plugins, opts)
@@ -104,4 +111,6 @@ vim.keymap.set('n', '<leader>d', function()
   local date_str = os.date("%H:%M|%a.|%b.|%d|%Y")
   vim.api.nvim_put({date_str}, 'c', true, true)
 end, { desc = 'Insert Current Date' })
+-- so python 3.14 repl doesnt break
+vim.g.slime_bracketed_paste = 1
 
