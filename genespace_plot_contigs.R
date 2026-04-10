@@ -67,6 +67,8 @@ run_telo_analysis <- function(asm, chr_n = CHR_N,
 get_large_telomeres <- function(result, min_width = 1000) {
   telo_df <- as.data.frame(result$telo)
   telo_df[telo_df$width > min_width, ]
+  #sort by highest width, then sort by chromosome
+  telo_df <- telo_df[order(-telo_df$width, telo_df$seqnames), ]
 }
 
 get_scaffold_telomeres <- function(result, scaffold_name) {
@@ -74,59 +76,50 @@ get_scaffold_telomeres <- function(result, scaffold_name) {
   telo_df[telo_df$seqnames == scaffold_name, ]
 }
 
-# =========================
-# Single runs
-# =========================
-
-# Example 1: paradoxa older assembly
-asm <- "/netscratch/dep_mercier/grp_marques/Aaryan/Cuscuta/epithymum/results/assemblies/C_epithymum_haphic_mar2026/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_v0.FINAL.fa"
-result <- run_telo_analysis(asm, chr_n = 14)
-
-
-# Telomeres over 1 kb
-large_telos <- get_large_telomeres(result, min_width = 1000)
-print(large_telos)
-
-# =========================
-# Multiple paradoxa versions
-# =========================
-
-paradoxa_versions <- c(
-  "V1.2" = "/netscratch/dep_mercier/grp_marques/Aaryan/Drosera/paradoxa/results/assemblies/Drosera_paradoxa_assembly_hic_6181Ndeeplight_6986Adeeplight/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_V1.2.FINAL.fa",
-  "V1.3" = "/netscratch/dep_mercier/grp_marques/Aaryan/Drosera/paradoxa/results/assemblies/Drosera_paradoxa_assembly_hic_6181Ndeeplight_6986Adeeplight/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_V1.3.FINAL.fa",
-  "V1.4" = "/netscratch/dep_mercier/grp_marques/Aaryan/Drosera/paradoxa/results/assemblies/Drosera_paradoxa_assembly_hic_6181Ndeeplight_6986Adeeplight/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_V1.4.FINAL.fa",
-  "V1.5" = "/netscratch/dep_mercier/grp_marques/Aaryan/Drosera/paradoxa/results/assemblies/Drosera_paradoxa_assembly_hic_6181Ndeeplight_6986Adeeplight/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_V1.5.FINAL.fa",
-  "V1.6" = "/netscratch/dep_mercier/grp_marques/Aaryan/Drosera/paradoxa/results/assemblies/Drosera_paradoxa_assembly_hic_6181Ndeeplight_6986Adeeplight/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_V1.6.FINAL.fa",
-  "V1.7" = "/netscratch/dep_mercier/grp_marques/Aaryan/Drosera/paradoxa/results/assemblies/Drosera_paradoxa_assembly_hic_6181Ndeeplight_6986Adeeplight/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_V1.7.FINAL.fa",
-  "V1.8" = "/netscratch/dep_mercier/grp_marques/Aaryan/Drosera/paradoxa/results/assemblies/Drosera_paradoxa_assembly_hic_6181Ndeeplight_6986Adeeplight/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_V1.8.FINAL.fa",
-  "V2.0" = "/netscratch/dep_mercier/grp_marques/Aaryan/Drosera/paradoxa/results/assemblies/Drosera_paradoxa_assembly_hic_6181Ndeeplight_6986Adeeplight/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_V2.FINAL.fa"
-)
-
-results_list <- list()
-
-for (ver in names(paradoxa_versions)) {
-  cat("\n====================\n")
-  cat("Running:", ver, "\n")
-  cat("====================\n")
+collapse_nearby_telomeres <- function(df, max_gap = 1000) {
+  # Expect columns: seqnames, start, end, width, strand, position
   
-  results_list[[ver]] <- run_telo_analysis(
-    asm = paradoxa_versions[[ver]],
-    chr_n = CHR_N
-  )
+  if (nrow(df) == 0) return(df)
+  
+  # sort first
+  df <- df[order(df$seqnames, df$start, df$end), ]
+  rownames(df) <- NULL
+  
+  # gap from previous row within same scaffold
+  same_seq <- c(FALSE, df$seqnames[-1] == df$seqnames[-nrow(df)])
+  gap_from_prev <- c(Inf, df$start[-1] - df$end[-nrow(df)] - 1)
+  gap_from_prev[!same_seq] <- Inf
+  
+  # start a new group when gap is too large or scaffold changes
+  group_id <- cumsum(c(1, gap_from_prev[-1] > max_gap))
+  
+  # collapse each group
+  out <- do.call(rbind, lapply(split(df, group_id), function(x) {
+    data.frame(
+      seqnames = x$seqnames[1],
+      start = min(x$start),
+      end = max(x$end),
+      width = sum(x$width),              # sum of individual widths
+      span = max(x$end) - min(x$start) + 1,  # genomic span of merged block
+      strand = if ("strand" %in% names(x)) x$strand[1] else NA,
+      position = if ("position" %in% names(x)) {
+        if (length(unique(x$position)) == 1) unique(x$position) else "mixed"
+      } else NA,
+      n_merged = nrow(x)
+    )
+  }))
+  
+  rownames(out) <- NULL
+  out
 }
 
 # =========================
-# Optional scaffold checks
+# Single runs
 # =========================
+asm <- "/netscratch/dep_mercier/grp_marques/Aaryan/Cuscuta/epithymum/results/assemblies/C_epithymum_haphic_mar2026/HiC_scaffolding/haphic/05.post_juicebox/out_JBAT_v0.FINAL.fa"
+result <- run_telo_analysis(asm,chr_n = 14)
 
-get_scaffold_telomeres(results_list[["V1.5"]], "scaffold_7")
-get_scaffold_telomeres(results_list[["V1.6"]], "scaffold_9")
-get_scaffold_telomeres(results_list[["V1.7"]], "scaffold_11")
-get_scaffold_telomeres(results_list[["V1.8"]], "scaffold_12")
-
-# =========================
-# Scorpioides assembly
-# =========================
-
-asm <- "/netscratch/dep_mercier/grp_marques/Aaryan/Drosera/scorpioides/results/assemblies/Drosera_scorpioides_HiC_2025_04_29_saurab_no_hom_cov/newres/HiC_scaffolding/ragtag_putg_hap1hap2/ragtag_output/juicebox_ragtag/HapHiC/haphic_with_params/05.post_juicebox/out_JBAT.FINAL.fa"
-result_scorpioides <- run_telo_analysis(asm, chr_n = 16)
+#check large telomeres
+df <- get_large_telomeres(result, min_width = 2e3)
+get_scaffold_telomeres(result, "scaffold_1")
+collapse_nearby_telomeres(get_scaffold_telomeres(result, "scaffold_2"), max_gap = 5e2)
