@@ -1,0 +1,58 @@
+name: Update Bioinformatiker Salary Figure
+
+on:
+  schedule:
+    - cron: "0 6 1 4 *"   # 06:00 UTC on April 1st every year
+  workflow_dispatch:       # also allows manual trigger from GitHub UI
+
+jobs:
+  update-salary-figure:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: bioinformatiker_salary
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          micromamba-version: latest
+          environment-file: bioinformatiker_salary/environment.yml
+          environment-name: bioinf_salary
+          cache-environment: true
+          cache-downloads: true
+
+      - name: Install R spatial system deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            libgdal-dev libgeos-dev libproj-dev \
+            libfontconfig1-dev libharfbuzz-dev libfribidi-dev \
+            libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+
+      - name: Run scraper and generate figures
+        shell: bash -l {0}
+        run: |
+          python scrape_bioinformatiker_salary.py
+
+      - name: Commit updated figures and data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add \
+            data/gehaltsvergleich_all.csv \
+            data/gehaltsvergleich_live_*.csv \
+            data/gehaltsvergleich_wayback_history.csv \
+            fig_v2_map_dumbbell_ribbon.png \
+            fig_v2_map_dumbbell_ribbon.pdf \
+            fig_v1_map_dumbbell_spaghetti.png \
+            fig_v1_map_dumbbell_spaghetti.pdf \
+            fig_v3_mapmultiple_dumbbell.png \
+            fig_v3_mapmultiple_dumbbell.pdf || true
+          git diff --staged --quiet || \
+            git commit -m "chore: annual salary figure update $(date +'%Y-%m-%d') [skip ci]"
+          git push
