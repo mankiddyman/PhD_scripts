@@ -1,0 +1,18 @@
+Wayback Machine snapshots for gehaltsvergleich.com/gehalt/Bioinformatiker-Bioinformatikerin
+Total unique-content snapshots: 16
+
+By year:
+  2019: 3 snapshot(s)
+  2020: 2 snapshot(s)
+  2021: 2 snapshot(s)
+  2022: 2 snapshot(s)
+  2023: 3 snapshot(s)
+  2024: 2 snapshot(s)
+  2025: 2 snapshot(s)
+
+Note: 'unique-content' means deduplicated by content hash.
+Multiple captures in the same year with identical content count as 1.
+Full snapshot list has 16 entries.
+
+To scrape a historical snapshot, use:
+  https://web.archive.org/web/<TIMESTAMP>/https://www.gehaltsvergleich.com/gehalt/Bioinformatiker-Bioinformatikerin
